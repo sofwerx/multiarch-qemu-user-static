@@ -4,7 +4,7 @@ language: bash
 env:
     global:
         - VERSION=2.11.0
-        - REPO=multiarch/qemu-user-static
+        - REPO=sofwerx/qemu-user-static
         - PACKAGE_URI="https://kojipkgs.fedoraproject.org/packages/qemu/2.11.0/4.fc28.1/x86_64/qemu-user-static-2.11.0-4.fc28.1.x86_64.rpm"
         - PACKAGE_FILENAME=qemu-user-static-2.11.0-4.fc28.1.x86_64.rpm
 branches:
@@ -15,7 +15,7 @@ before_script:
     - wget --content-disposition $PACKAGE_URI
     - sudo rpm2cpio $PACKAGE_FILENAME | cpio -dimv
 script:
-    - if [[ $TRAVIS_BRANCH == 'master' && $TRAVIS_PULL_REQUEST == 'false' ]]; then sudo ./publish.sh -v "$VERSION" -t "$GITHUB_TOKEN" -r "$REPO"; fi
-    - if [[ $TRAVIS_BRANCH == 'master' && $TRAVIS_PULL_REQUEST == 'false' ]]; then sudo ./update.sh -v "$VERSION" -r "$REPO"; fi
+    - if [[ $TRAVIS_BRANCH == 'master' && $TRAVIS_PULL_REQUEST == 'false' ]]; then sudo -E ./publish/publish.sh -v "$VERSION" -t "$GITHUB_TOKEN" -r "$REPO"; fi
+    - if [[ $TRAVIS_BRANCH == 'master' && $TRAVIS_PULL_REQUEST == 'false' ]]; then sudo -E ./update.sh -v "$VERSION" -r "$REPO"; fi
 after_success:
     - if [[ $TRAVIS_BRANCH == 'master' && $TRAVIS_PULL_REQUEST == 'false' ]]; then docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD" && docker push $REPO; fi
