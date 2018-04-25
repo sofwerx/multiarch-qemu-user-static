@@ -44,7 +44,7 @@ release_id=$(curl -sL -X POST \
 }" "https://api.github.com/repos/${REPO}/releases" | jq -r ".id")
 if [ "$release_id" = "null" ]; then
     # get the existing release id
-    release_id=$(set -x; curl -sL \
+    release_id=$(curl -sL \
     -H "Content-Type: application/json" \
     -H "Accept: application/vnd.github.v3+json" \
     -H "Authorization: token ${GITHUB_TOKEN}" \
