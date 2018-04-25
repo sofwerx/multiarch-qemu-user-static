@@ -1,0 +1,25 @@
+version: '2.1'
+
+services:
+
+  qemu-user-static-register:
+    container_name: qemu-user-static-register
+    hostname: qemu-user-static-register
+    build:
+      context: register/
+      args:
+        HOST_FROM: busybox
+    image: ${REPO}:${HOST_ARCH}-register
+    privileged: true
+
+  qemu-user-static-publish:
+    container_name: qemu-user-static-publish
+    hostname: qemu-user-static-publish
+    build:
+      context: publish/
+    image: ${REPO}:${HOST_ARCH}-publish
+    environment:
+      REPO: ${REPO}
+      HOST_ARCH: ${HOST_ARCH}
+      GITHUB_TOKEN: ${GITHUB_TOKEN}
+      VERSION: ${VERSION}

@@ -2,12 +2,15 @@
 
 # A POSIX variable
 OPTIND=1 # Reset in case getopts has been used previously in the shell.
+HOST_ARCH=$(uname -m)
 
 while getopts "v:t:r:" opt; do
     case "$opt" in
         v)  VERSION=$OPTARG
         ;;
         t)  GITHUB_TOKEN=$OPTARG
+        ;;
+        a)  HOST_ARCH=$OPTARG
         ;;
         r)  REPO=$OPTARG
         ;;
@@ -18,14 +21,12 @@ shift $((OPTIND-1))
 
 [ "$1" = "--" ] && shift
 
-rm -rf releases
-mkdir -p releases
-# find . -regex './qemu-.*' -not -regex './qemu-system-.*' -exec cp {} releases \;
-cp ./usr/bin/qemu-*-static releases/
+mkdir -p releases/
+cp /usr/bin/qemu-*-static releases/
 cd releases/
 for file in *; do
     tar -czf $file.tar.gz $file;
-    cp $file.tar.gz x86_64_$file.tar.gz
+    cp $file.tar.gz ${HOST_ARCH}_$file.tar.gz
 done
 
 # create a release
@@ -51,7 +52,7 @@ if [ "$release_id" = "null" ]; then
     "https://api.github.com/repos/${REPO}/releases" | jq -r --arg version "${VERSION}" '.[] | select(.name == "v"+$version).id')
 fi
 
-for file in *; do
+for file in ${HOST_ARCH}_*.tar.gz; do
     content_type=$(file --mime-type -b ${file})
     curl -sL \
         -H "Authorization: token ${GITHUB_TOKEN}" \

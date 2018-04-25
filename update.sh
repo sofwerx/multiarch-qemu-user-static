@@ -3,10 +3,13 @@ set -e
 
 # A POSIX variable
 OPTIND=1 # Reset in case getopts has been used previously in the shell.
+HOST_ARCH=${HOST_ARCH:-$(uname -m)}
 
 while getopts "r:v:" opt; do
     case "$opt" in
         r)  REPO=$OPTARG
+        ;;
+        a)  HOST_ARCH=$OPTARG
         ;;
         v)  VERSION=$OPTARG
         ;;
@@ -23,7 +26,7 @@ shift $((OPTIND-1))
 
 [ "$1" = "--" ] && shift
 
-from_arch="x86_64"
+from_arch="${HOST_ARCH}"
 to_archs=("aarch64" "alpha" "arm" "armeb" "cris" "hppa" "i386" "m68k" "microblaze" "microblazeel" "mips" "mips64" "mips64el" "mipsel" "mipsn32" "mipsn32el" "nios2" "or1k" "ppc" "ppc64" "ppc64abi32" "ppc64le" "s390x" "sh4" "sh4eb" "sparc" "sparc32plus" "sparc64" "x86_64")
 
 for to_arch in "${to_archs[@]}"; do
@@ -34,8 +37,5 @@ FROM scratch
 ADD https://github.com/${REPO}/releases/download/v${VERSION}/${from_arch}_qemu-${to_arch}-static.tar.gz /usr/bin
 EOF
         docker build -t ${REPO}:$from_arch-$to_arch archs/$from_arch-$to_arch
-        docker tag ${REPO}:$from_arch-$to_arch ${REPO}:$to_arch
     fi
 done
-
-docker build -t ${REPO}:register register
